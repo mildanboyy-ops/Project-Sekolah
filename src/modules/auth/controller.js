@@ -31,9 +31,9 @@ const loginSuperAdminController = async (req, res) => {
 const loginAdminController = async (req, res) => {
   try {
 
-    const { email, password } = req.body
+    const { email, name, password } = req.body
 
-    const data = await loginAdmin(email, password)
+    const data = await loginAdmin(email, name, password)
 
     res.status(200).json({
       msg: "Login Admin berhasil",
@@ -49,13 +49,13 @@ const loginAdminController = async (req, res) => {
   }
 }
 
-// LOGIN GURU (PAKAI NAME)
+// LOGIN GURU
 const loginGuruController = async (req, res) => {
   try {
 
-    const { name, password } = req.body
+    const { email, name, password } = req.body
 
-    const data = await loginGuru(name, password)
+    const data = await loginGuru(email, name, password)
 
     res.status(200).json({
       msg: "Login Guru berhasil",
@@ -71,13 +71,13 @@ const loginGuruController = async (req, res) => {
   }
 }
 
-// LOGIN SISWA (PAKAI NAME)
+// LOGIN SISWA
 const loginSiswaController = async (req, res) => {
   try {
 
-    const { name, password } = req.body
+    const { email, name, password } = req.body
 
-    const data = await loginSiswa(name, password)
+    const data = await loginSiswa(email, name, password)
 
     res.status(200).json({
       msg: "Login Siswa berhasil",

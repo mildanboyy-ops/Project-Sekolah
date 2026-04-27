@@ -6,17 +6,17 @@ module.exports = {
     await queryInterface.createTable('Absensi', {
 
       id: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
-        allowNull: false,
-        defaultValue: Sequelize.UUIDV4
+        allowNull: false
       },
 
       uuid: {
         type: Sequelize.UUID,
-        allowNull: false,
+        defaultValue: Sequelize.UUIDV4,
         unique: true,
-        defaultValue: Sequelize.UUIDV4
+        allowNull: false
       },
 
       siswaId: {
@@ -30,40 +30,6 @@ module.exports = {
         onDelete: 'CASCADE'
       },
 
-      jadwalId: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'Jadwal',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-
-      // 🔥 FIX: TAMBAH RELASI YANG KAMU PAKAI DI MODEL
-      guruId: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'Guru',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
-      },
-
-      mapelId: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'Mapel',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
-      },
-
       status: {
         type: Sequelize.ENUM('hadir', 'izin', 'sakit', 'alpha'),
         allowNull: false
@@ -74,14 +40,21 @@ module.exports = {
         allowNull: false
       },
 
-      jamMasuk: Sequelize.TIME,
-      jamKeluar: Sequelize.TIME,
+      jamMasuk: {
+        type: Sequelize.TIME
+      },
 
-      keterangan: Sequelize.TEXT,
+      jamKeluar: {
+        type: Sequelize.TIME
+      },
+
+      keterangan: {
+        type: Sequelize.TEXT
+      },
 
       metode: {
-        type: Sequelize.ENUM("manual", "qr", "gps"),
-        defaultValue: "manual"
+        type: Sequelize.ENUM('manual', 'qr', 'gps'),
+        defaultValue: 'manual'
       },
 
       divalidasi: {
@@ -98,14 +71,20 @@ module.exports = {
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
       }
 
     });
 
+    await queryInterface.addConstraint('Absensi', {
+      fields: ['siswaId', 'tanggal'],
+      type: 'unique',
+      name: 'unique_absensi'
+    });
+
   },
 
-  async down(queryInterface) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Absensi');
   }
 };

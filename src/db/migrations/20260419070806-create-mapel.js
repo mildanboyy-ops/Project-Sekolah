@@ -8,7 +8,8 @@ module.exports = {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
-        primaryKey: true
+        primaryKey: true,
+        allowNull: false
       },
 
       uuid: {
@@ -20,8 +21,8 @@ module.exports = {
 
       kodeMapel: {
         type: Sequelize.STRING,
-        unique: true,
-        allowNull: true
+        allowNull: false,
+        unique: true
       },
 
       name: {
@@ -29,6 +30,17 @@ module.exports = {
         allowNull: false
       },
 
+      deskripsi: {
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
+
+      kategori: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+
+      // 🔥 FOREIGN KEY
       guruId: {
         type: Sequelize.INTEGER,
         allowNull: true,
@@ -51,51 +63,28 @@ module.exports = {
         onDelete: 'SET NULL'
       },
 
-      // 🔥 FIX: pakai TIME biar sesuai jam pelajaran
-      waktuMulai: {
-        type: Sequelize.TIME,
-        allowNull: true
-      },
-
-      waktuSelesai: {
-        type: Sequelize.TIME,
-        allowNull: true
-      },
-
-      durasiMenit: {
-        type: Sequelize.INTEGER,
-        defaultValue: 45
-      },
-
-      hari: {
-        type: Sequelize.ENUM(
-          "senin","selasa","rabu","kamis","jumat","sabtu","minggu"
-        ),
-        allowNull: true
-      },
-
       status: {
-        type: Sequelize.ENUM("aktif","nonaktif"),
-        defaultValue: "aktif"
+        type: Sequelize.ENUM('aktif', 'nonaktif'),
+        defaultValue: 'aktif'
       },
 
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
 
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
 
     });
 
   },
 
-  async down(queryInterface) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Mapel');
   }
 };

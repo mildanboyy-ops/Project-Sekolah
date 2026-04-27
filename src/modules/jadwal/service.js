@@ -1,71 +1,34 @@
 const db = require("../../db/models");
-const { Jadwal, Kelas, Guru, Mapel, Absensi } = db;
+const { Jadwal } = db;
 
-// GET ALL
 const tampilJadwal = async () => {
   return await Jadwal.findAll({
-    include: [
-      {
-        model: Kelas,
-        as: "kelas"
-      },
-      {
-        model: Guru,
-        as: "guru"
-      },
-      {
-        model: Mapel,
-        as: "mapel"
-      },
-      {
-        model: Absensi,
-        as: "absensi"
-      }
-    ]
+    order: [["createdAt", "DESC"]]
   });
 };
 
-// GET BY ID
 const tampilJadwalById = async (id) => {
-  return await Jadwal.findOne({
-    where: { id },
-    include: [
-      {
-        model: Kelas,
-        as: "kelas"
-      },
-      {
-        model: Guru,
-        as: "guru"
-      },
-      {
-        model: Mapel,
-        as: "mapel"
-      },
-      {
-        model: Absensi,
-        as: "absensi"
-      }
-    ]
-  });
+  return await Jadwal.findOne({ where: { id } });
 };
 
-// CREATE
 const tambahJadwal = async (data) => {
   return await Jadwal.create(data);
 };
 
-// UPDATE
 const ubahJadwal = async (id, data) => {
-  await Jadwal.update(data, { where: { id } });
+  const jadwal = await Jadwal.findOne({ where: { id } });
+  if (!jadwal) throw new Error("Jadwal tidak ditemukan");
+
+  await jadwal.update(data);
   return tampilJadwalById(id);
 };
 
-// DELETE
 const hapusJadwal = async (id) => {
-  return await Jadwal.destroy({
-    where: { id }
-  });
+  const jadwal = await Jadwal.findOne({ where: { id } });
+  if (!jadwal) throw new Error("Jadwal tidak ditemukan");
+
+  await jadwal.destroy();
+  return true;
 };
 
 module.exports = {

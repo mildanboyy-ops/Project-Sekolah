@@ -1,63 +1,34 @@
 const db = require("../../db/models");
-const { Nilai, Siswa, Guru, Mapel } = db;
+const { Nilai } = db;
 
-// GET ALL
 const tampilNilai = async () => {
   return await Nilai.findAll({
-    include: [
-      {
-        model: Siswa,
-        as: "siswa",
-      },
-      {
-        model: Guru,
-        as: "guru",
-      },
-      {
-        model: Mapel,
-        as: "mapel",
-      }
-    ]
+    order: [["createdAt", "DESC"]]
   });
 };
 
-// GET BY ID
 const tampilNilaiById = async (id) => {
-  return await Nilai.findOne({
-    where: { id },
-    include: [
-      {
-        model: Siswa,
-        as: "siswa",
-      },
-      {
-        model: Guru,
-        as: "guru",
-      },
-      {
-        model: Mapel,
-        as: "mapel",
-      }
-    ]
-  });
+  return await Nilai.findOne({ where: { id } });
 };
 
-// CREATE
 const tambahNilai = async (data) => {
   return await Nilai.create(data);
 };
 
-// UPDATE
 const ubahNilai = async (id, data) => {
-  await Nilai.update(data, { where: { id } });
+  const nilai = await Nilai.findOne({ where: { id } });
+  if (!nilai) throw new Error("Nilai tidak ditemukan");
+
+  await nilai.update(data);
   return tampilNilaiById(id);
 };
 
-// DELETE
 const hapusNilai = async (id) => {
-  return await Nilai.destroy({
-    where: { id }
-  });
+  const nilai = await Nilai.findOne({ where: { id } });
+  if (!nilai) throw new Error("Nilai tidak ditemukan");
+
+  await nilai.destroy();
+  return true;
 };
 
 module.exports = {

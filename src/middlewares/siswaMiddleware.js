@@ -13,7 +13,6 @@ const createSiswaValidator = [
     .isLength({ min: 6 }).withMessage("Password minimal 6 karakter")
 ]
 
-// 🔥 untuk update
 const updateSiswaValidator = [
   body("name")
     .optional()

@@ -1,70 +1,34 @@
 const db = require("../../db/models");
-const { Siswa, Kelas, Nilai, Absensi, Tugas } = db;
+const { Siswa } = db;
 
-// GET ALL
 const tampilSiswa = async () => {
   return await Siswa.findAll({
-    include: [
-      {
-        model: Kelas,
-        as: "kelas"
-      },
-      {
-        model: Nilai,
-        as: "nilai"
-      },
-      {
-        model: Absensi,
-        as: "absensi"
-      },
-      {
-        model: Tugas,
-        as: "tugas"
-      }
-    ]
+    order: [["createdAt", "DESC"]]
   });
 };
 
-// GET BY ID
 const tampilSiswaById = async (id) => {
-  return await Siswa.findOne({
-    where: { id },
-    include: [
-      {
-        model: Kelas,
-        as: "kelas"
-      },
-      {
-        model: Nilai,
-        as: "nilai"
-      },
-      {
-        model: Absensi,
-        as: "absensi"
-      },
-    ]
-  });
+  return await Siswa.findOne({ where: { id } });
 };
 
-// CREATE
 const tambahSiswa = async (data) => {
   return await Siswa.create(data);
 };
 
-// UPDATE
 const ubahSiswa = async (id, data) => {
-  await Siswa.update(data, {
-    where: { id }
-  });
+  const siswa = await Siswa.findOne({ where: { id } });
+  if (!siswa) throw new Error("Siswa tidak ditemukan");
 
+  await siswa.update(data);
   return tampilSiswaById(id);
 };
 
-// DELETE
 const hapusSiswa = async (id) => {
-  return await Siswa.destroy({
-    where: { id }
-  });
+  const siswa = await Siswa.findOne({ where: { id } });
+  if (!siswa) throw new Error("Siswa tidak ditemukan");
+
+  await siswa.destroy();
+  return true;
 };
 
 module.exports = {

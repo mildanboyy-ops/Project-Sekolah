@@ -8,7 +8,8 @@ module.exports = {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
-        primaryKey: true
+        primaryKey: true,
+        allowNull: false
       },
 
       uuid: {
@@ -20,6 +21,7 @@ module.exports = {
 
       role: {
         type: Sequelize.ENUM("super_admin", "admin"),
+        allowNull: false,
         defaultValue: "admin"
       },
 
@@ -31,7 +33,10 @@ module.exports = {
       email: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
+        validate: {
+          isEmail: true
+        }
       },
 
       password: {
@@ -39,16 +44,51 @@ module.exports = {
         allowNull: false
       },
 
-      phone: Sequelize.STRING,
-      address: Sequelize.TEXT,
-      avatar: Sequelize.STRING,
+      phone: {
+        type: Sequelize.STRING
+      },
 
-      lastLogin: Sequelize.DATE,
-      refreshToken: Sequelize.TEXT,
+      address: {
+        type: Sequelize.TEXT
+      },
+
+      avatar: {
+        type: Sequelize.STRING
+      },
+
+      lastLogin: {
+        type: Sequelize.DATE
+      },
+
+      refreshToken: {
+        type: Sequelize.TEXT,
+        allowNull: true
+      },
+
+      // 🔥 STATUS AKUN
+      status: {
+        type: Sequelize.ENUM("active", "suspended"),
+        defaultValue: "active"
+      },
 
       isActive: {
         type: Sequelize.BOOLEAN,
         defaultValue: true
+      },
+
+      // 🔥 SECURITY (NILAI PLUS BANGET)
+      loginAttempt: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+      },
+
+      lockedUntil: {
+        type: Sequelize.DATE
+      },
+
+      // 🔥 SOFT DELETE
+      deletedAt: {
+        type: Sequelize.DATE
       },
 
       createdAt: {
@@ -64,6 +104,9 @@ module.exports = {
       }
 
     });
+
+    // 🔥 INDEX (LOGIN CEPAT)
+    await queryInterface.addIndex('Admin', ['email']);
 
   },
 

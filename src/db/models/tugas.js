@@ -1,33 +1,8 @@
 'use strict';
 
-const { Model } = require('sequelize');
-
 module.exports = (sequelize, DataTypes) => {
 
-  class Tugas extends Model {
-
-    static associate(models) {
-
-      Tugas.belongsTo(models.Guru, {
-        foreignKey: 'guruId',
-        as: 'guru'
-      });
-
-      Tugas.belongsTo(models.Mapel, {
-        foreignKey: 'mapelId',
-        as: 'mapel'
-      });
-
-      Tugas.hasMany(models.Nilai, {
-        foreignKey: 'tugasId',
-        as: 'nilai'
-      });
-
-    }
-
-  }
-
-  Tugas.init({
+  const Tugas = sequelize.define('Tugas', {
 
     id: {
       type: DataTypes.INTEGER,
@@ -42,36 +17,54 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
 
-    guruId: DataTypes.INTEGER,
-    mapelId: DataTypes.INTEGER,
+    guruId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
 
-    namaUjian: {
+    mapelId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+
+    kelasId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+
+    // 🔥 RELASI SIMPLE KE SISWA
+    siswaId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+
+    title: {
       type: DataTypes.STRING,
       allowNull: false
     },
 
-    deskripsi: DataTypes.TEXT,
+    description: DataTypes.TEXT,
     file: DataTypes.STRING,
+    link: DataTypes.STRING,
 
-    tipe: {
-      type: DataTypes.ENUM('GURU', 'MURID'),
-      defaultValue: 'GURU'
+    publishedAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
     },
 
-    hari: DataTypes.STRING,
-    tanggal: DataTypes.INTEGER,
-    bulan: DataTypes.INTEGER,
-    tahun: DataTypes.INTEGER,
-    jamUpload: DataTypes.STRING,
-
-    deadlineTanggal: DataTypes.INTEGER,
-    deadlineBulan: DataTypes.INTEGER,
-    deadlineTahun: DataTypes.INTEGER,
-    deadlineJam: DataTypes.STRING,
+    deadlineAt: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
 
     status: {
-      type: DataTypes.ENUM("draft", "published", "archived"),
-      defaultValue: "published"
+      type: DataTypes.ENUM('draft', 'published', 'archived'),
+      defaultValue: 'draft'
+    },
+
+    modePengumpulan: {
+      type: DataTypes.ENUM('online', 'offline'),
+      defaultValue: 'online'
     },
 
     bobot: {
@@ -84,21 +77,45 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0
     },
 
-    link: DataTypes.STRING,
-
-    modePengumpulan: {
-      type: DataTypes.ENUM("online", "offline"),
-      defaultValue: "online"
-    },
-
-    publishedAt: DataTypes.DATE
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    }
 
   }, {
-    sequelize,
-    modelName: 'Tugas',
     tableName: 'Tugas',
     timestamps: true
   });
+
+  Tugas.associate = (models) => {
+
+    Tugas.belongsTo(models.Guru, {
+      foreignKey: 'guruId',
+      as: 'guru'
+    });
+
+    Tugas.belongsTo(models.Mapel, {
+      foreignKey: 'mapelId',
+      as: 'mapel'
+    });
+
+    Tugas.belongsTo(models.Kelas, {
+      foreignKey: 'kelasId',
+      as: 'kelas'
+    });
+
+    // 🔥 RELASI KE SISWA (SIMPLE)
+    Tugas.belongsTo(models.Siswa, {
+      foreignKey: 'siswaId',
+      as: 'siswa'
+    });
+
+    Tugas.hasMany(models.Nilai, {
+      foreignKey: 'tugasId',
+      as: 'nilai'
+    });
+
+  };
 
   return Tugas;
 };

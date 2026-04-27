@@ -12,7 +12,6 @@ const createPengumumanValidator = [
     .isLength({ min: 10 }).withMessage("Isi minimal 10 karakter")
 ]
 
-// 🔥 untuk update
 const updatePengumumanValidator = [
   body("judul")
     .optional()

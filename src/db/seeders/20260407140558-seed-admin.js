@@ -6,62 +6,68 @@ const { v4: uuidv4 } = require('uuid');
 module.exports = {
   async up(queryInterface) {
 
-    const password = await bcrypt.hash("123456", 10);
     const now = new Date();
 
-    const admins = [
+    const rawAdmins = [
       {
-        uuid: uuidv4(),
         role: "super_admin",
-        name: "Super Admin Utama",
-        email: "superadmin.main@school.id",
-        password,
-        phone: "081234567890",
-        address: "Jakarta",
-        isActive: true,
-        createdAt: now,
-        updatedAt: now
+        name: "Muhammad Mildan Saputra",
+        email: "mildan@school.id",
+        password: "Mildan123"
       },
-
       {
-        uuid: uuidv4(),
         role: "admin",
-        name: "Ahmad Fauzan",
-        email: "ahmad.admin@school.id",
-        password,
-        phone: "081200000001",
-        address: "Bandung",
-        isActive: true,
-        createdAt: now,
-        updatedAt: now
+        name: "Dimas Anggoro",
+        email: "dimas@school.id",
+        password: "Dimas123"
       },
-
       {
-        uuid: uuidv4(),
         role: "admin",
-        name: "Budi Santoso",
-        email: "budi.admin@school.id",
-        password,
-        phone: "081200000002",
-        address: "Surabaya",
-        isActive: true,
-        createdAt: now,
-        updatedAt: now
+        name: "Alfin Fathurahman",
+        email: "alfin@school.id",
+        password: "Alfin123"
       },
-
       {
-        uuid: uuidv4(),
         role: "admin",
-        name: "Rizky Ramadhan",
-        email: "rizky.admin@school.id",
-        password,
-        phone: "081200000003",
-        address: "Yogyakarta",
-        isActive: true,
-        createdAt: now,
-        updatedAt: now
+        name: "Gilang Rhamadan",
+        email: "gilang@school.id",
+        password: "Gilang123"
       }
     ];
+
+    const admins = [];
+
+    for (const admin of rawAdmins) {
+
+      const hashedPassword = await bcrypt.hash(admin.password, 10);
+
+      admins.push({
+        uuid: uuidv4(),
+
+        role: admin.role,
+        name: admin.name,
+        email: admin.email.toLowerCase(),
+        password: hashedPassword,
+
+        phone: "081200000000",
+        address: "Indonesia",
+        avatar: null,
+
+        lastLogin: null,
+        refreshToken: null,
+
+        status: "active",   // ✔ sesuai ENUM migration
+        isActive: true,
+
+        loginAttempt: 0,
+        lockedUntil: null,
+
+        deletedAt: null,    // ✔ penting karena paranoid model
+
+        createdAt: now,
+        updatedAt: now
+      });
+    }
 
     await queryInterface.bulkInsert('Admin', admins);
   },

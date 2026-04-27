@@ -22,10 +22,7 @@ module.exports = {
       guruId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'Guru',
-          key: 'id'
-        },
+        references: { model: 'Guru', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
@@ -33,41 +30,58 @@ module.exports = {
       mapelId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'Mapel',
-          key: 'id'
-        },
+        references: { model: 'Mapel', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
 
-      namaUjian: {
+      kelasId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: 'Kelas', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+
+      siswaId: {
+  type: Sequelize.INTEGER,
+  allowNull: false,
+  references: {
+    model: 'Siswa',
+    key: 'id'
+  },
+  onUpdate: 'CASCADE',
+  onDelete: 'CASCADE'
+},
+
+      title: {
         type: Sequelize.STRING,
         allowNull: false
       },
 
-      deskripsi: Sequelize.TEXT,
-      file: Sequelize.STRING,
+      description: Sequelize.TEXT,
 
-      tipe: {
-        type: Sequelize.ENUM('GURU', 'MURID'),
-        defaultValue: 'GURU'
+      file: Sequelize.STRING,
+      link: Sequelize.STRING,
+
+      publishedAt: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
 
-      hari: Sequelize.STRING,
-      tanggal: Sequelize.INTEGER,
-      bulan: Sequelize.INTEGER,
-      tahun: Sequelize.INTEGER,
-      jamUpload: Sequelize.STRING,
-
-      deadlineTanggal: Sequelize.INTEGER,
-      deadlineBulan: Sequelize.INTEGER,
-      deadlineTahun: Sequelize.INTEGER,
-      deadlineJam: Sequelize.STRING,
+      deadlineAt: {
+        type: Sequelize.DATE,
+        allowNull: false
+      },
 
       status: {
-        type: Sequelize.ENUM("draft", "published", "archived"),
-        defaultValue: "published"
+        type: Sequelize.ENUM('draft', 'published', 'archived'),
+        defaultValue: 'draft'
+      },
+
+      modePengumpulan: {
+        type: Sequelize.ENUM('online', 'offline'),
+        defaultValue: 'online'
       },
 
       bobot: {
@@ -80,32 +94,28 @@ module.exports = {
         defaultValue: 0
       },
 
-      link: Sequelize.STRING,
-
-      modePengumpulan: {
-        type: Sequelize.ENUM("online", "offline"),
-        defaultValue: "online"
+      isActive: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true
       },
-
-      publishedAt: Sequelize.DATE,
 
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
 
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
       }
 
     });
 
   },
 
-  async down(queryInterface) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Tugas');
   }
 };

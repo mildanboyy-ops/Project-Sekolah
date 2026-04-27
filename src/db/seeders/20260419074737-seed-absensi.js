@@ -13,60 +13,51 @@ module.exports = {
       { type: QueryTypes.SELECT }
     );
 
-    const jadwals = await queryInterface.sequelize.query(
-      `SELECT id, guruId, mapelId FROM Jadwal`,
-      { type: QueryTypes.SELECT }
-    );
-
-    if (!siswas.length || !jadwals.length) {
-      throw new Error("Siswa atau Jadwal kosong");
+    if (!siswas.length) {
+      throw new Error("Siswa kosong");
     }
 
     const absensis = [];
+    const used = new Set();
 
-    for (let i = 0; i < 5; i++) {
+    for (let d = 0; d < 5; d++) {
 
       const tanggal = new Date();
-      tanggal.setDate(tanggal.getDate() - i);
+      tanggal.setHours(0, 0, 0, 0);
+      tanggal.setDate(tanggal.getDate() - d);
 
       for (const siswa of siswas) {
 
-        const selected = [...jadwals].slice(0, 2);
+        const key = `${siswa.id}-${tanggal.toISOString()}`;
 
-        for (const jadwal of selected) {
+        if (used.has(key)) continue;
+        used.add(key);
 
-          const rand = Math.random();
+        const rand = Math.random();
 
-          let status = "hadir";
-          if (rand > 0.8) status = "izin";
-          if (rand > 0.9) status = "sakit";
-          if (rand > 0.97) status = "alpha";
+        let status = "hadir";
+        if (rand > 0.85) status = "izin";
+        if (rand > 0.92) status = "sakit";
+        if (rand > 0.97) status = "alpha";
 
-          absensis.push({
-            id: uuidv4(),
-            uuid: uuidv4(), // 🔥 FIX PENTING
+        absensis.push({
+          uuid: uuidv4(),
 
-            siswaId: siswa.id,
-            jadwalId: jadwal.id,
+          siswaId: siswa.id,
 
-            guruId: jadwal.guruId || null,
-            mapelId: jadwal.mapelId || null,
+          status,
+          tanggal,
 
-            status,
-            tanggal: tanggal.toISOString().split("T")[0],
+          jamMasuk: status === "hadir" ? "07:00:00" : null,
+          jamKeluar: status === "hadir" ? "12:00:00" : null,
 
-            jamMasuk: status === "hadir" ? "07:00:00" : null,
-            jamKeluar: status === "hadir" ? "12:00:00" : null,
+          keterangan: status,
+          metode: "manual",
+          divalidasi: status === "hadir",
 
-            keterangan: status,
-
-            metode: "manual",
-            divalidasi: status === "hadir",
-
-            createdAt: now,
-            updatedAt: now
-          });
-        }
+          createdAt: now,
+          updatedAt: now
+        });
       }
     }
 

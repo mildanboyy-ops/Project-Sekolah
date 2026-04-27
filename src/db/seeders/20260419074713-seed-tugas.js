@@ -8,102 +8,100 @@ module.exports = {
 
     const now = new Date();
 
-    const gurus = await queryInterface.sequelize.query(
-      `SELECT id, mapelId FROM Guru`,
+    // 🔥 ambil data jadwal
+    const jadwals = await queryInterface.sequelize.query(
+      `SELECT guruId, mapelId, kelasId FROM Jadwal`,
       { type: QueryTypes.SELECT }
     );
 
-    const mapels = await queryInterface.sequelize.query(
-      `SELECT id FROM Mapel`,
+    // 🔥 ambil siswa biar bisa assign tugas
+    const siswas = await queryInterface.sequelize.query(
+      `SELECT id FROM Siswa`,
       { type: QueryTypes.SELECT }
     );
 
-    if (!gurus.length || !mapels.length) {
-      throw new Error("Guru atau Mapel kosong, jalankan seed dulu");
+    if (!jadwals.length) {
+      throw new Error("Jadwal kosong, jalankan seeder Jadwal dulu");
     }
 
-    const statusList = ["draft", "published", "archived"];
-    const modeList = ["online", "offline"];
-    const tipeList = ["GURU"];
+    if (!siswas.length) {
+      throw new Error("Siswa kosong, jalankan seeder Siswa dulu");
+    }
 
-    const tugasList = [
+    const titles = [
       "Latihan Soal",
       "Tugas Rumah",
       "Ujian Harian",
       "Quiz Online",
       "Praktikum",
       "Proyek Kelompok",
-      "Review Materi",
-      "Essay Tugas",
-      "Presentasi",
-      "Refleksi Pembelajaran"
+      "Essay",
+      "Presentasi"
     ];
 
-    const deskripsiList = [
-      "Kerjakan dengan teliti dan kumpulkan tepat waktu",
+    const descriptions = [
+      "Kerjakan dengan teliti",
       "Dikerjakan secara individu",
-      "Boleh diskusi tapi jawaban harus original",
-      "Upload hasil dalam bentuk PDF",
-      "Dikumpulkan melalui Google Classroom",
-      "Perhatikan instruksi dengan baik",
-      "Nilai berdasarkan ketepatan dan kerapihan",
-      "Wajib dikumpulkan sebelum deadline",
-      "Gunakan referensi buku pelajaran",
-      "Jawaban harus ditulis tangan"
+      "Upload dalam bentuk PDF",
+      "Perhatikan instruksi",
+      "Kumpulkan tepat waktu"
     ];
+
+    const statusList = ["draft", "published", "archived"];
+    const modeList = ["online", "offline"];
 
     const tugas = [];
 
-    for (let i = 0; i < 200; i++) {
+    let index = 1;
 
-      const guru = gurus[Math.floor(Math.random() * gurus.length)];
-      const mapel = mapels.find(m => m.id === guru.mapelId) || mapels[Math.floor(Math.random() * mapels.length)];
+    for (const jadwal of jadwals) {
 
-      const createdDate = new Date();
-      createdDate.setDate(createdDate.getDate() - Math.floor(Math.random() * 30));
+      const jumlahTugas = Math.floor(Math.random() * 2) + 1;
 
-      const deadline = new Date(createdDate);
-      deadline.setDate(deadline.getDate() + Math.floor(Math.random() * 7) + 1);
+      for (let i = 0; i < jumlahTugas; i++) {
 
-      const status = statusList[Math.floor(Math.random() * statusList.length)];
+        const createdDate = new Date();
+        createdDate.setDate(createdDate.getDate() - Math.floor(Math.random() * 10));
 
-      tugas.push({
-        uuid: uuidv4(),
+        const deadline = new Date(createdDate);
+        deadline.setDate(deadline.getDate() + (Math.floor(Math.random() * 5) + 1));
 
-        guruId: guru.id,
-        mapelId: mapel.id,
+        const status = statusList[Math.floor(Math.random() * statusList.length)];
 
-        namaUjian: `${tugasList[i % tugasList.length]} ${i + 1}`,
-        deskripsi: deskripsiList[i % deskripsiList.length],
+        const randomSiswa = siswas[Math.floor(Math.random() * siswas.length)];
 
-        file: Math.random() > 0.5 ? `uploads/tugas_${i + 1}.pdf` : null,
+        tugas.push({
+          uuid: uuidv4(),
 
-        tipe: "GURU",
+          guruId: jadwal.guruId,
+          mapelId: jadwal.mapelId,
+          kelasId: jadwal.kelasId,
 
-        hari: createdDate.toLocaleDateString("id-ID", { weekday: "long" }),
-        tanggal: createdDate.getDate(),
-        bulan: createdDate.getMonth() + 1,
-        tahun: createdDate.getFullYear(),
-        jamUpload: `${7 + (i % 5)}:00`,
+          siswaId: randomSiswa.id,
 
-        deadlineTanggal: deadline.getDate(),
-        deadlineBulan: deadline.getMonth() + 1,
-        deadlineTahun: deadline.getFullYear(),
-        deadlineJam: "23:59",
+          title: `${titles[index % titles.length]} ${index}`,
+          description: descriptions[index % descriptions.length],
 
-        status,
-        bobot: Math.floor(Math.random() * 3) + 1,
-        toleransiMenit: Math.floor(Math.random() * 60),
+          file: Math.random() > 0.5 ? `uploads/tugas_${index}.pdf` : null,
+          link: Math.random() > 0.7 ? "https://classroom.google.com" : null,
 
-        link: Math.random() > 0.7 ? "https://classroom.google.com" : null,
+          publishedAt: status === "published" ? createdDate : null,
+          deadlineAt: deadline,
 
-        modePengumpulan: modeList[Math.floor(Math.random() * modeList.length)],
+          status,
+          modePengumpulan: modeList[Math.floor(Math.random() * modeList.length)],
 
-        publishedAt: status === "published" ? createdDate : null,
+          bobot: Math.floor(Math.random() * 3) + 1,
+          toleransiMenit: Math.floor(Math.random() * 60),
 
-        createdAt: createdDate,
-        updatedAt: createdDate
-      });
+          isActive: true,
+
+          createdAt: createdDate,
+          updatedAt: createdDate
+        });
+
+        index++;
+      }
     }
 
     await queryInterface.bulkInsert('Tugas', tugas);

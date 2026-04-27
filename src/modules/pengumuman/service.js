@@ -1,59 +1,34 @@
 const db = require("../../db/models");
-const { Pengumuman, Guru, Admin } = db;
+const { Pengumuman } = db;
 
-// GET ALL
 const tampilPengumuman = async () => {
   return await Pengumuman.findAll({
-    include: [
-      {
-        model: Guru,
-        as: "guru",
-
-      },
-      {
-        model: Admin,
-        as: "admin",
-
-      }
-    ]
+    order: [["createdAt", "DESC"]]
   });
 };
 
-// GET BY ID
 const tampilPengumumanById = async (id) => {
-  return await Pengumuman.findOne({
-    where: { id },
-    include: [
-      {
-        model: Guru,
-        as: "guru",
-
-      },
-      {
-        model: Admin,
-        as: "admin",
-
-      }
-    ]
-  });
+  return await Pengumuman.findOne({ where: { id } });
 };
 
-// CREATE
 const tambahPengumuman = async (data) => {
   return await Pengumuman.create(data);
 };
 
-// UPDATE
 const ubahPengumuman = async (id, data) => {
-  await Pengumuman.update(data, { where: { id } });
+  const pengumuman = await Pengumuman.findOne({ where: { id } });
+  if (!pengumuman) throw new Error("Pengumuman tidak ditemukan");
+
+  await pengumuman.update(data);
   return tampilPengumumanById(id);
 };
 
-// DELETE
 const hapusPengumuman = async (id) => {
-  return await Pengumuman.destroy({
-    where: { id }
-  });
+  const pengumuman = await Pengumuman.findOne({ where: { id } });
+  if (!pengumuman) throw new Error("Pengumuman tidak ditemukan");
+
+  await pengumuman.destroy();
+  return true;
 };
 
 module.exports = {

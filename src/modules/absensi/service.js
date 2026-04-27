@@ -1,71 +1,34 @@
 const db = require("../../db/models");
-const { Absensi, Guru, Siswa, Mapel, Jadwal } = db;
+const { Absensi } = db;
 
-// GET ALL
 const tampilAbsensi = async () => {
   return await Absensi.findAll({
-    include: [
-      {
-        model: Siswa,
-        as: "siswa",
-      },
-      {
-        model: Guru,
-        as: "guru",
-      },
-      {
-        model: Mapel,
-        as: "mapel",
-      },
-      {
-        model: Jadwal,
-        as: "jadwal",
-      }
-    ]
+    order: [["createdAt", "DESC"]]
   });
 };
 
-// GET BY ID
 const tampilAbsensiById = async (id) => {
-  return await Absensi.findOne({
-    where: { id },
-    include: [
-      {
-        model: Siswa,
-        as: "siswa",
-      },
-      {
-        model: Guru,
-        as: "guru",
-      },
-      {
-        model: Mapel,
-        as: "mapel",
-      },
-      {
-        model: Jadwal,
-        as: "jadwal",
-      }
-    ]
-  });
+  return await Absensi.findOne({ where: { id } });
 };
 
-// CREATE
 const tambahAbsensi = async (data) => {
   return await Absensi.create(data);
 };
 
-// UPDATE
 const ubahAbsensi = async (id, data) => {
-  await Absensi.update(data, { where: { id } });
+  const absensi = await Absensi.findOne({ where: { id } });
+  if (!absensi) throw new Error("Absensi tidak ditemukan");
+
+  await absensi.update(data);
   return tampilAbsensiById(id);
 };
 
-// DELETE
 const hapusAbsensi = async (id) => {
-  return await Absensi.destroy({
-    where: { id }
-  });
+  const absensi = await Absensi.findOne({ where: { id } });
+  if (!absensi) throw new Error("Absensi tidak ditemukan");
+
+  await absensi.destroy();
+  return true;
 };
 
 module.exports = {

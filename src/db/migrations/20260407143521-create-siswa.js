@@ -8,7 +8,8 @@ module.exports = {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
-        primaryKey: true
+        primaryKey: true,
+        allowNull: false
       },
 
       uuid: {
@@ -20,6 +21,7 @@ module.exports = {
 
       nis: {
         type: Sequelize.STRING,
+        allowNull: false,
         unique: true
       },
 
@@ -39,30 +41,39 @@ module.exports = {
         allowNull: false
       },
 
-      phone: Sequelize.STRING,
-      alamat: Sequelize.TEXT,
+      phone: {
+        type: Sequelize.STRING
+      },
+
+      address: {
+        type: Sequelize.TEXT
+      },
 
       gender: {
         type: Sequelize.ENUM("L", "P")
       },
 
-      tanggalLahir: Sequelize.DATEONLY,
+      birthDate: {
+        type: Sequelize.DATEONLY
+      },
 
-      namaWali: Sequelize.STRING,
+      parentName: {
+        type: Sequelize.STRING
+      },
 
       kelasId: {
         type: Sequelize.INTEGER,
-        allowNull: true,
+        allowNull: false,
         references: {
           model: 'Kelas',
           key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
+        onDelete: 'CASCADE'
       },
 
       status: {
-        type: Sequelize.ENUM("aktif","pindah","lulus"),
+        type: Sequelize.ENUM("aktif", "pindah", "lulus"),
         defaultValue: "aktif"
       },
 
@@ -73,12 +84,20 @@ module.exports = {
 
       createdAt: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
 
       updatedAt: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+
+      // 🔥 WAJIB untuk paranoid
+      deletedAt: {
+        type: Sequelize.DATE,
+        allowNull: true
       }
 
     });

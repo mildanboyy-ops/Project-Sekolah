@@ -5,9 +5,16 @@ module.exports = (sequelize, DataTypes) => {
   const Pengumuman = sequelize.define('Pengumuman', {
 
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       primaryKey: true,
-      defaultValue: DataTypes.UUIDV4
+      autoIncrement: true
+    },
+
+    uuid: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
+      unique: true
     },
 
     title: {
@@ -21,13 +28,18 @@ module.exports = (sequelize, DataTypes) => {
     },
 
     priority: {
-      type: DataTypes.ENUM("low","normal","high","urgent"),
+      type: DataTypes.ENUM("low", "normal", "high", "urgent"),
       defaultValue: "normal"
     },
 
     target: {
-      type: DataTypes.ENUM("all","guru","siswa","admin"),
+      type: DataTypes.ENUM("all", "guru", "siswa", "admin"),
       defaultValue: "all"
+    },
+
+    kelasId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     },
 
     isPublished: {
@@ -35,44 +47,71 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: true
     },
 
-    publishAt: DataTypes.DATE,
+    publishAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    },
+
     expiredAt: DataTypes.DATE,
 
+    // 🔥 CREATOR
     createdById: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
 
     createdByType: {
-      type: DataTypes.ENUM("guru","admin"),
+      type: DataTypes.ENUM("guru", "admin"),
       allowNull: false
     },
 
-    updatedById: DataTypes.INTEGER,
-    updatedByType: DataTypes.ENUM("guru","admin")
+    // 🔥 UPDATER (FIX MISSING)
+    updatedById: {
+      type: DataTypes.INTEGER
+    },
+
+    updatedByType: {
+      type: DataTypes.ENUM("guru", "admin")
+    },
+
+    status: {
+      type: DataTypes.ENUM("draft","published","archived"),
+      defaultValue: "published"
+    },
+
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    }
 
   }, {
     tableName: 'Pengumuman',
     timestamps: true
   });
 
-  Pengumuman.associate = function(models) {
+ Pengumuman.associate = function(models) {
 
-    // 🔥 CLEAN: tidak double FK lagi
+  // 🔥 KELAS
+  Pengumuman.belongsTo(models.Kelas, {
+    foreignKey: 'kelasId',
+    as: 'kelas'
+  });
 
-    Pengumuman.belongsTo(models.Guru, {
-      foreignKey: 'createdById',
-      constraints: false,
-      as: 'guru'
-    });
+  // 🔥 CREATOR GURU
+  Pengumuman.belongsTo(models.Guru, {
+    foreignKey: 'createdById',
+    constraints: false,
+    as: 'creatorGuru'
+  });
 
-    Pengumuman.belongsTo(models.Admin, {
-      foreignKey: 'createdById',
-      constraints: false,
-      as: 'admin'
-    });
+  // 🔥 CREATOR ADMIN
+  Pengumuman.belongsTo(models.Admin, {
+    foreignKey: 'createdById',
+    constraints: false,
+    as: 'creatorAdmin'
+  });
 
-  };
+};
 
   return Pengumuman;
 };

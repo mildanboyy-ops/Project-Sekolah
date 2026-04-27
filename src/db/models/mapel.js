@@ -17,31 +17,38 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
 
-    kodeMapel: DataTypes.STRING,
+    kodeMapel: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
 
     name: {
       type: DataTypes.STRING,
       allowNull: false
     },
 
-    guruId: DataTypes.INTEGER,
-    kelasId: DataTypes.INTEGER,
-
-    waktuMulai: DataTypes.TIME,
-    waktuSelesai: DataTypes.TIME,
-
-    durasiMenit: {
-      type: DataTypes.INTEGER,
-      defaultValue: 45
+    deskripsi: {
+      type: DataTypes.TEXT
     },
 
-    hari: DataTypes.ENUM(
-      "senin","selasa","rabu","kamis","jumat","sabtu","minggu"
-    ),
+    kategori: {
+      type: DataTypes.STRING
+    },
+
+    guruId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+
+    kelasId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
 
     status: {
-      type: DataTypes.ENUM("aktif","nonaktif"),
-      defaultValue: "aktif"
+      type: DataTypes.ENUM('aktif', 'nonaktif'),
+      defaultValue: 'aktif'
     }
 
   }, {
@@ -49,18 +56,21 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
-  Mapel.associate = function(models) {
+  Mapel.associate = function (models) {
 
+    // 🔥 RELASI KE GURU
     Mapel.belongsTo(models.Guru, {
       foreignKey: 'guruId',
       as: 'guru'
     });
 
+    // 🔥 RELASI KE KELAS
     Mapel.belongsTo(models.Kelas, {
       foreignKey: 'kelasId',
       as: 'kelas'
     });
 
+    // 🔥 RELASI LAIN
     Mapel.hasMany(models.Jadwal, {
       foreignKey: 'mapelId',
       as: 'jadwal'

@@ -6,9 +6,9 @@ module.exports = {
     await queryInterface.createTable('Jadwal', {
 
       id: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
-        defaultValue: Sequelize.UUIDV4,
         allowNull: false
       },
 
@@ -22,10 +22,7 @@ module.exports = {
       mapelId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'Mapel',
-          key: 'id'
-        },
+        references: { model: 'Mapel', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
@@ -33,10 +30,7 @@ module.exports = {
       guruId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'Guru',
-          key: 'id'
-        },
+        references: { model: 'Guru', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
@@ -44,10 +38,7 @@ module.exports = {
       kelasId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'Kelas',
-          key: 'id'
-        },
+        references: { model: 'Kelas', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
@@ -59,7 +50,6 @@ module.exports = {
         allowNull: false
       },
 
-      // 🔥 FIX: TIME instead of STRING
       jamMulai: {
         type: Sequelize.TIME,
         allowNull: false
@@ -71,13 +61,17 @@ module.exports = {
       },
 
       ruangan: {
-        type: Sequelize.STRING,
-        allowNull: true
+        type: Sequelize.STRING
       },
 
       tipe: {
         type: Sequelize.ENUM("regular","tambahan","ujian"),
         defaultValue: "regular"
+      },
+
+      status: {
+        type: Sequelize.ENUM("aktif","nonaktif"),
+        defaultValue: "aktif"
       },
 
       isActive: {
@@ -88,15 +82,21 @@ module.exports = {
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
 
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
+    });
 
+    // 🔥 anti bentrok jadwal kelas
+    await queryInterface.addConstraint('Jadwal', {
+      fields: ['kelasId', 'hari', 'jamMulai'],
+      type: 'unique',
+      name: 'unique_jadwal_kelas_hari_jam'
     });
 
   },

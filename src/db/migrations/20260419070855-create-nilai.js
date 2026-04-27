@@ -6,10 +6,10 @@ module.exports = {
     await queryInterface.createTable('Nilai', {
 
       id: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
-        allowNull: false,
-        defaultValue: Sequelize.UUIDV4
+        allowNull: false
       },
 
       uuid: {
@@ -22,21 +22,7 @@ module.exports = {
       siswaId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'Siswa',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-
-      mapelId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Mapel',
-          key: 'id'
-        },
+        references: { model: 'Siswa', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
@@ -44,22 +30,32 @@ module.exports = {
       guruId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'Guru',
-          key: 'id'
-        },
+        references: { model: 'Guru', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
 
-      // 🔥 FIX: HARUS INTEGER (sesuai Tugas.id)
+      mapelId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: 'Mapel', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+
+      // 🔥 FIX DI SINI
+      kelasId: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: { model: 'Kelas', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
+
       tugasId: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        references: {
-          model: 'Tugas',
-          key: 'id'
-        },
+        references: { model: 'Tugas', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
       },
@@ -74,33 +70,49 @@ module.exports = {
         defaultValue: "harian"
       },
 
-      tanggal: Sequelize.DATEONLY,
+      semester: {
+        type: Sequelize.ENUM("ganjil", "genap"),
+        allowNull: false
+      },
+
+      tahunAjaran: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+
+      tanggal: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
 
       bobot: {
         type: Sequelize.FLOAT,
         defaultValue: 1
       },
 
-      semester: {
-        type: Sequelize.ENUM("ganjil", "genap")
+      catatan: {
+        type: Sequelize.TEXT
       },
-
-      tahunAjaran: Sequelize.STRING,
-
-      catatan: Sequelize.TEXT,
 
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
 
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.NOW
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
 
+    });
+
+    // 🔥 UNIQUE INDEX (AMAN)
+    await queryInterface.addConstraint('Nilai', {
+      fields: ['siswaId', 'mapelId', 'jenis', 'semester', 'tahunAjaran'],
+      type: 'unique',
+      name: 'unique_nilai_per_siswa_mapel'
     });
 
   },

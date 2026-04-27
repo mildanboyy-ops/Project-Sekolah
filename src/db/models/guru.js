@@ -31,7 +31,10 @@ module.exports = (sequelize, DataTypes) => {
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
+      validate: {
+        isEmail: true
+      }
     },
 
     password: {
@@ -40,14 +43,22 @@ module.exports = (sequelize, DataTypes) => {
     },
 
     phone: DataTypes.STRING,
+
     address: DataTypes.TEXT,
 
     gender: DataTypes.ENUM("L", "P"),
 
     birthDate: DataTypes.DATEONLY,
 
-    kelasId: DataTypes.INTEGER,
-    mapelId: DataTypes.INTEGER,
+    isWaliKelas: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+
+    status: {
+      type: DataTypes.ENUM('aktif', 'nonaktif', 'guru'),
+      defaultValue: 'guru'
+    },
 
     isActive: {
       type: DataTypes.BOOLEAN,
@@ -61,29 +72,46 @@ module.exports = (sequelize, DataTypes) => {
 
   Guru.associate = function(models) {
 
-    Guru.belongsTo(models.Kelas, {
-      foreignKey: 'kelasId',
-      as: 'kelas'
-    });
-
-    Guru.belongsTo(models.Mapel, {
-      foreignKey: 'mapelId',
+    // 🔥 MAPEL RELATION (BIAR INCLUDE MAPEL JUGA VALID)
+    Guru.belongsToMany(models.Mapel, {
+      through: 'GuruMapel',
+      foreignKey: 'guruId',
+      otherKey: 'mapelId',
       as: 'mapel'
     });
 
+    // 🔥 JADWAL
     Guru.hasMany(models.Jadwal, {
       foreignKey: 'guruId',
       as: 'jadwal'
     });
 
+    // 🔥 NILAI
     Guru.hasMany(models.Nilai, {
       foreignKey: 'guruId',
       as: 'nilai'
     });
 
+    // 🔥 TUGAS
     Guru.hasMany(models.Tugas, {
       foreignKey: 'guruId',
       as: 'tugas'
+    });
+
+    // 🔥 WALI KELAS
+    Guru.hasOne(models.Kelas, {
+      foreignKey: 'waliKelasId',
+      as: 'kelasWali'
+    });
+
+    // 🔥 PENGUMUMAN
+    Guru.hasMany(models.Pengumuman, {
+      foreignKey: 'createdById',
+      constraints: false,
+      scope: {
+        createdByType: 'guru'
+      },
+      as: 'pengumuman'
     });
 
   };

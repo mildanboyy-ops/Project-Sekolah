@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken")
 
 const { Admin, SuperAdmin, Guru, Siswa } = db
 
-// helper generate token
 const generateToken = (id, role) => {
   return jwt.sign(
     { id, role },
@@ -13,17 +12,35 @@ const generateToken = (id, role) => {
   )
 }
 
+// 🔥 helper biar bisa email / name
+const buildWhere = (email, name) => {
+  const where = {}
+
+  if (email && name) {
+    where[db.Sequelize.Op.or] = [
+      { email },
+      { name }
+    ]
+  } else if (email) {
+    where.email = email
+  } else if (name) {
+    where.name = name
+  }
+
+  return where
+}
+
 //
 // LOGIN SUPER ADMIN
 //
 const loginSuperAdmin = async (email, password) => {
 
   const user = await SuperAdmin.findOne({
-    where: { email }
+    where: buildWhere(email, null)
   })
 
   if (!user) {
-    throw new Error("Email tidak ditemukan")
+    throw new Error("User tidak ditemukan")
   }
 
   const match = await bcrypt.compare(password, user.password)
@@ -40,14 +57,14 @@ const loginSuperAdmin = async (email, password) => {
 //
 // LOGIN ADMIN
 //
-const loginAdmin = async (email, password) => {
+const loginAdmin = async (email, name, password) => {
 
   const user = await Admin.findOne({
-    where: { email }
+    where: buildWhere(email, name)
   })
 
   if (!user) {
-    throw new Error("Email tidak ditemukan")
+    throw new Error("User tidak ditemukan")
   }
 
   const match = await bcrypt.compare(password, user.password)
@@ -64,14 +81,14 @@ const loginAdmin = async (email, password) => {
 //
 // LOGIN GURU
 //
-const loginGuru = async (name, password) => {
+const loginGuru = async (email, name, password) => {
 
   const user = await Guru.findOne({
-    where: { name }
+    where: buildWhere(email, name)
   })
 
   if (!user) {
-    throw new Error("Nama tidak ditemukan")
+    throw new Error("User tidak ditemukan")
   }
 
   const match = await bcrypt.compare(password, user.password)
@@ -88,14 +105,14 @@ const loginGuru = async (name, password) => {
 //
 // LOGIN SISWA
 //
-const loginSiswa = async (name, password) => {
+const loginSiswa = async (email, name, password) => {
 
   const user = await Siswa.findOne({
-    where: { name }
+    where: buildWhere(email, name)
   })
 
   if (!user) {
-    throw new Error("Nama tidak ditemukan")
+    throw new Error("User tidak ditemukan")
   }
 
   const match = await bcrypt.compare(password, user.password)

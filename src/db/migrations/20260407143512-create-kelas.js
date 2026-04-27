@@ -3,7 +3,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
 
-    await queryInterface.createTable('Guru', {
+    await queryInterface.createTable('Kelas', {
 
       id: {
         type: Sequelize.INTEGER,
@@ -19,58 +19,45 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4
       },
 
-      nip: {
-        type: Sequelize.STRING,
-        unique: true,
-        allowNull: true
-      },
-
       name: {
         type: Sequelize.STRING,
         allowNull: false
       },
 
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
+      tingkat: {
+        type: Sequelize.ENUM("X", "XI", "XII"),
+        allowNull: false
       },
 
-      password: {
+      jurusan: {
         type: Sequelize.STRING,
         allowNull: false
       },
 
-      phone: Sequelize.STRING,
-
-      address: Sequelize.TEXT,
-
-      gender: {
-        type: Sequelize.ENUM("L", "P")
+      kapasitas: {
+        type: Sequelize.INTEGER,
+        defaultValue: 30
       },
 
-      birthDate: Sequelize.DATEONLY,
+      jumlahSiswa: {
+        type: Sequelize.INTEGER,
+        defaultValue: 10
+      },
 
-      kelasId: {
+      status: {
+        type: Sequelize.ENUM("aktif", "nonaktif", "guru"),
+        defaultValue: "guru"
+      },
+
+      waliKelasId: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'Kelas',
+          model: 'Guru',
           key: 'id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
-      },
-
-  
-      mapelId: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
-
-      isActive: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true
       },
 
       createdAt: {
@@ -90,6 +77,6 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('Guru');
+    await queryInterface.dropTable('Kelas');
   }
 };

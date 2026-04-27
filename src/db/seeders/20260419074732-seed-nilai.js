@@ -9,83 +9,87 @@ module.exports = {
     const now = new Date();
 
     const siswas = await queryInterface.sequelize.query(
-      `SELECT id FROM Siswa`,
+      `SELECT id, kelasId FROM Siswa`,
       { type: QueryTypes.SELECT }
     );
 
     const mapels = await queryInterface.sequelize.query(
-      `SELECT id, name FROM Mapel`,
+      `SELECT id FROM Mapel`,
       { type: QueryTypes.SELECT }
     );
 
     const gurus = await queryInterface.sequelize.query(
-      `SELECT id FROM Guru`,
+      `SELECT id FROM Guru`, 
+      { type: QueryTypes.SELECT }
+    );
+
+    const tugasList = await queryInterface.sequelize.query(
+      `SELECT id, mapelId FROM Tugas`,
       { type: QueryTypes.SELECT }
     );
 
     if (!siswas.length || !mapels.length || !gurus.length) {
-      throw new Error("Data Siswa / Mapel / Guru masih kosong");
+      throw new Error("Data kosong");
     }
 
     const jenisList = ["harian", "tugas", "uts", "uas"];
     const semesterList = ["ganjil", "genap"];
-    const tahunAjaranList = ["2024/2025", "2025/2026"];
-
-    const gradeRange = {
-      SD: [80, 100],
-      SMP: [75, 95],
-      SMA: [70, 92],
-      SMK: [70, 90],
-      KULIAH: [65, 88],
-      PESANTREN: [85, 100]
-    };
-
-    const detectLevel = (name) => {
-      if (!name) return "SMA";
-
-      const n = name.toLowerCase();
-
-      if (n.includes("sd")) return "SD";
-      if (n.includes("smp")) return "SMP";
-      if (n.includes("smk")) return "SMK";
-      if (n.includes("kuliah") || n.includes("ai") || n.includes("kalkulus")) return "KULIAH";
-      if (n.includes("nahwu") || n.includes("fiqih") || n.includes("arab")) return "PESANTREN";
-
-      return "SMA";
-    };
 
     const nilais = [];
 
     for (const siswa of siswas) {
 
-      const jumlahNilai = Math.floor(Math.random() * 6) + 6; // 6–11 nilai per siswa
+      const usedCombination = new Set();
 
-      for (let i = 0; i < jumlahNilai; i++) {
+      for (let i = 0; i < 6; i++) {
 
-        const mapel = mapels[Math.floor(Math.random() * mapels.length)];
+        let mapel, jenis, semester, key;
+
+        // 🔥 loop sampai dapet kombinasi unik
+        do {
+          mapel = mapels[Math.floor(Math.random() * mapels.length)];
+          jenis = jenisList[Math.floor(Math.random() * jenisList.length)];
+          semester = semesterList[Math.floor(Math.random() * semesterList.length)];
+
+          key = `${siswa.id}-${mapel.id}-${jenis}-${semester}-2025/2026`;
+
+        } while (usedCombination.has(key));
+
+        usedCombination.add(key);
+
         const guru = gurus[Math.floor(Math.random() * gurus.length)];
 
-        const level = detectLevel(mapel.name);
-        const range = gradeRange[level];
+        const tugasFiltered = tugasList.filter(t => t.mapelId === mapel.id);
 
-        const nilai = Number(
-          (Math.random() * (range[1] - range[0]) + range[0]).toFixed(2)
+        const tugas = tugasFiltered.length
+          ? tugasFiltered[Math.floor(Math.random() * tugasFiltered.length)]
+          : null;
+
+        const nilaiAngka = Number(
+          (Math.random() * (95 - 70) + 70).toFixed(2)
         );
 
         nilais.push({
-          id: uuidv4(),
           uuid: uuidv4(),
 
           siswaId: siswa.id,
           mapelId: mapel.id,
           guruId: guru.id,
 
-          nilai,
-          jenis: jenisList[Math.floor(Math.random() * jenisList.length)],
-          semester: semesterList[Math.floor(Math.random() * semesterList.length)],
-          tahunAjaran: tahunAjaranList[Math.floor(Math.random() * tahunAjaranList.length)],
+          // 🔥 penting (ambil dari siswa)
+          kelasId: siswa.kelasId || null,
 
-          catatan: Math.random() > 0.7 ? "Perlu peningkatan pada materi tertentu" : null,
+          tugasId: tugas ? tugas.id : null,
+
+          nilai: nilaiAngka,
+
+          jenis,
+          semester,
+          tahunAjaran: "2025/2026",
+
+          catatan: Math.random() > 0.8
+            ? "Perlu peningkatan"
+            : null,
 
           createdAt: now,
           updatedAt: now

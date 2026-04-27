@@ -27,7 +27,6 @@ IMPORT ROUTES
 const adminRoutes = require("./modules/admin/routes.js")
 const guruRoutes = require("./modules/guru/routes.js");
 const siswaRoutes = require("./modules/siswa/routes.js");
-const superAdminRoutes = require('./modules/superAdmin/routes.js');
 const dashboardAdminRoutes = require("./modules/dashboards/dashboardAdmin/routes.js");
 const dashboardGuruRoutes = require("./modules/dashboards/dashboardGuru/routes.js");
 const dashboardSiswaRoutes = require("./modules/dashboards/dashboardSiswa/routes.js");
@@ -47,7 +46,6 @@ ROUTES
 app.use("/api/admin", adminRoutes)
 app.use("/api/guru", guruRoutes)
 app.use("/api/siswa", siswaRoutes)
-app.use("/api/super_admin", superAdminRoutes)
 app.use("/api/dashboard/admin", dashboardAdminRoutes)
 app.use("/api/dashboard/guru", dashboardGuruRoutes)
 app.use("/api/dashboard/siswa", dashboardSiswaRoutes)

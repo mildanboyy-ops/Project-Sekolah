@@ -27,7 +27,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
 
-    jurusan: DataTypes.STRING,
+    jurusan: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
 
     kapasitas: {
       type: DataTypes.INTEGER,
@@ -56,24 +59,40 @@ module.exports = (sequelize, DataTypes) => {
 
   Kelas.associate = function(models) {
 
+    // 🔥 SISWA
     Kelas.hasMany(models.Siswa, {
       foreignKey: 'kelasId',
       as: 'siswa'
     });
 
-    Kelas.hasMany(models.Guru, {
-      foreignKey: 'kelasId',
-      as: 'guru'
-    });
-
+    // 🔥 JADWAL
     Kelas.hasMany(models.Jadwal, {
       foreignKey: 'kelasId',
       as: 'jadwal'
     });
 
-    Kelas.belongsTo(models.Admin, {
+    // 🔥 NILAI (PENTING BIAR INCLUDE GAK ERROR)
+    Kelas.hasMany(models.Nilai, {
+      foreignKey: 'kelasId',
+      as: 'nilai'
+    });
+
+    // 🔥 TUGAS
+    Kelas.hasMany(models.Tugas, {
+      foreignKey: 'kelasId',
+      as: 'tugas'
+    });
+
+    // 🔥 WALI KELAS
+    Kelas.belongsTo(models.Guru, {
       foreignKey: 'waliKelasId',
       as: 'waliKelas'
+    });
+
+    // 🔥 PENGUMUMAN (OPTIONAL FILTER)
+    Kelas.hasMany(models.Pengumuman, {
+      foreignKey: 'kelasId',
+      as: 'pengumuman'
     });
 
   };

@@ -6,8 +6,8 @@ module.exports = (sequelize, DataTypes) => {
 
     id: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
 
     uuid: {
@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
 
     nis: {
       type: DataTypes.STRING,
+      allowNull: false,
       unique: true
     },
 
@@ -30,7 +31,8 @@ module.exports = (sequelize, DataTypes) => {
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
+      validate: { isEmail: true }
     },
 
     password: {
@@ -39,18 +41,14 @@ module.exports = (sequelize, DataTypes) => {
     },
 
     phone: DataTypes.STRING,
-    alamat: DataTypes.TEXT,
-
-    gender: {
-      type: DataTypes.ENUM("L", "P")
-    },
-
-    tanggalLahir: DataTypes.DATEONLY,
-    namaWali: DataTypes.STRING,
+    address: DataTypes.TEXT,
+    gender: DataTypes.ENUM("L", "P"),
+    birthDate: DataTypes.DATEONLY,
+    parentName: DataTypes.STRING,
 
     kelasId: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: false
     },
 
     status: {
@@ -65,10 +63,11 @@ module.exports = (sequelize, DataTypes) => {
 
   }, {
     tableName: 'Siswa',
-    timestamps: true
+    timestamps: true,
+    paranoid: true
   });
 
-  Siswa.associate = function(models) {
+  Siswa.associate = (models) => {
 
     Siswa.belongsTo(models.Kelas, {
       foreignKey: 'kelasId',
@@ -85,6 +84,11 @@ module.exports = (sequelize, DataTypes) => {
       as: 'absensi'
     });
 
+    // 🔥 RELASI KE TUGAS (FIX)
+    Siswa.hasMany(models.Tugas, {
+      foreignKey: 'siswaId',
+      as: 'tugas'
+    });
 
   };
 

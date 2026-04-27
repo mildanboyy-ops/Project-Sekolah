@@ -13,11 +13,14 @@ module.exports = {
       { type: QueryTypes.SELECT }
     );
 
-    if (!gurus.length) {
-      throw new Error("Guru kosong, jalankan seeder Guru dulu");
-    }
+    const admins = await queryInterface.sequelize.query(
+      `SELECT id FROM Admin`,
+      { type: QueryTypes.SELECT }
+    );
 
-    const levels = ["SD", "SMP", "SMA", "SMK", "KULIAH", "PESANTREN"];
+    if (!gurus.length && !admins.length) {
+      throw new Error("Guru & Admin kosong");
+    }
 
     const events = [
       "Ujian Tengah Semester",
@@ -25,16 +28,11 @@ module.exports = {
       "Libur Nasional",
       "Pembagian Raport",
       "Kegiatan Pramuka",
-      "Kerja Bakti",
       "Study Tour",
       "Lomba Antar Kelas",
-      "Peringatan Hari Besar",
       "Workshop Guru",
       "Pelatihan Siswa",
-      "Perubahan Jadwal",
-      "Ekstrakurikuler Baru",
-      "Kegiatan Olahraga",
-      "Pengumuman Akademik"
+      "Perubahan Jadwal"
     ];
 
     const priorities = ["low", "normal", "high", "urgent"];
@@ -42,33 +40,34 @@ module.exports = {
 
     const messages = [
       "Harap seluruh warga sekolah memperhatikan informasi ini.",
-      "Wajib diikuti sesuai jadwal yang telah ditentukan.",
-      "Informasi resmi dari pihak sekolah.",
+      "Wajib diikuti sesuai jadwal.",
+      "Informasi resmi dari sekolah.",
       "Mohon kerja sama semua pihak.",
-      "Kegiatan ini bersifat wajib.",
-      "Harap hadir tepat waktu.",
-      "Tidak diperkenankan terlambat.",
-      "Absensi akan diperhitungkan.",
-      "Silakan hubungi wali kelas jika ada pertanyaan.",
-      "Perubahan dapat terjadi sewaktu-waktu."
+      "Harap hadir tepat waktu."
     ];
 
     const data = [];
 
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 150; i++) {
 
-      const creator = gurus[i % gurus.length];
+      const useGuru = Math.random() > 0.5;
+
+      const creator = useGuru
+        ? gurus[i % gurus.length]
+        : admins[i % admins.length];
+
+      const createdByType = useGuru ? "guru" : "admin";
 
       const publishDate = new Date(now);
-      publishDate.setDate(now.getDate() - (i % 30));
+      publishDate.setDate(now.getDate() - (i % 20));
 
       const expiredDate = new Date(publishDate);
-      expiredDate.setDate(publishDate.getDate() + (7 + (i % 7)));
+      expiredDate.setDate(publishDate.getDate() + 7);
 
       data.push({
-        id: uuidv4(),
+        uuid: uuidv4(), // ✅ FIX (pakai ini, bukan id)
 
-        title: `[${levels[i % levels.length]}] ${events[i % events.length]}`,
+        title: `${events[i % events.length]} #${i + 1}`,
         content: messages[i % messages.length],
 
         priority: priorities[i % priorities.length],
@@ -78,15 +77,17 @@ module.exports = {
         publishAt: publishDate,
         expiredAt: expiredDate,
 
-        // 🔥 FIXED FIELD NAME (sesuai migration)
         createdById: creator.id,
-        createdByType: "guru",
+        createdByType,
 
         updatedById: creator.id,
-        updatedByType: "guru",
+        updatedByType: createdByType,
 
-        createdAt: now,
-        updatedAt: now
+        status: "published", 
+        isActive: true,       
+
+        createdAt: publishDate,
+        updatedAt: publishDate
       });
     }
 

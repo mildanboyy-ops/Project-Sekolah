@@ -3,12 +3,13 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
 
-    await queryInterface.createTable('SuperAdmin', {
+    await queryInterface.createTable('Guru', {
 
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
-        primaryKey: true
+        primaryKey: true,
+        allowNull: false
       },
 
       uuid: {
@@ -18,9 +19,10 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4
       },
 
-      role: {
-        type: Sequelize.ENUM("super_admin"),
-        defaultValue: "super_admin"
+      nip: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: true
       },
 
       name: {
@@ -39,12 +41,31 @@ module.exports = {
         allowNull: false
       },
 
-      phone: Sequelize.STRING,
-      address: Sequelize.TEXT,
-      avatar: Sequelize.STRING,
+      phone: {
+        type: Sequelize.STRING
+      },
 
-      lastLogin: Sequelize.DATE,
-      refreshToken: Sequelize.TEXT,
+      address: {
+        type: Sequelize.TEXT
+      },
+
+      gender: {
+        type: Sequelize.ENUM("L", "P")
+      },
+
+      birthDate: {
+        type: Sequelize.DATEONLY
+      },
+
+      isWaliKelas: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+
+      status: {
+        type: Sequelize.ENUM('aktif', 'nonaktif', 'guru'),
+        defaultValue: 'guru'
+      },
 
       isActive: {
         type: Sequelize.BOOLEAN,
@@ -68,6 +89,6 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('SuperAdmin');
+    await queryInterface.dropTable('Guru');
   }
 };

@@ -5,9 +5,9 @@ module.exports = (sequelize, DataTypes) => {
   const Absensi = sequelize.define('Absensi', {
 
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       primaryKey: true,
-      defaultValue: DataTypes.UUIDV4
+      autoIncrement: true
     },
 
     uuid: {
@@ -16,28 +16,28 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
 
-    siswaId: DataTypes.INTEGER,
-    jadwalId: DataTypes.UUID,
-
-    // 🔥 FIX: sinkron dengan migration
-    guruId: DataTypes.INTEGER,
-    mapelId: DataTypes.INTEGER,
+    siswaId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
 
     status: {
       type: DataTypes.ENUM('hadir', 'izin', 'sakit', 'alpha'),
       allowNull: false
     },
 
-    tanggal: DataTypes.DATEONLY,
+    tanggal: {
+      type: DataTypes.DATEONLY,
+      allowNull: false
+    },
 
     jamMasuk: DataTypes.TIME,
     jamKeluar: DataTypes.TIME,
-
     keterangan: DataTypes.TEXT,
 
     metode: {
-      type: DataTypes.ENUM("manual", "qr", "gps"),
-      defaultValue: "manual"
+      type: DataTypes.ENUM('manual', 'qr', 'gps'),
+      defaultValue: 'manual'
     },
 
     divalidasi: {
@@ -50,26 +50,11 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true
   });
 
-  Absensi.associate = function(models) {
+  Absensi.associate = (models) => {
 
     Absensi.belongsTo(models.Siswa, {
       foreignKey: 'siswaId',
       as: 'siswa'
-    });
-
-    Absensi.belongsTo(models.Jadwal, {
-      foreignKey: 'jadwalId',
-      as: 'jadwal'
-    });
-
-    Absensi.belongsTo(models.Guru, {
-      foreignKey: 'guruId',
-      as: 'guru'
-    });
-
-    Absensi.belongsTo(models.Mapel, {
-      foreignKey: 'mapelId',
-      as: 'mapel'
     });
 
   };

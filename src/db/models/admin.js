@@ -7,7 +7,8 @@ module.exports = (sequelize, DataTypes) => {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
+      allowNull: false
     },
 
     uuid: {
@@ -19,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
 
     role: {
       type: DataTypes.ENUM("super_admin", "admin"),
+      allowNull: false,
       defaultValue: "admin"
     },
 
@@ -39,32 +41,51 @@ module.exports = (sequelize, DataTypes) => {
     },
 
     phone: DataTypes.STRING,
+
     address: DataTypes.TEXT,
+
     avatar: DataTypes.STRING,
 
     lastLogin: DataTypes.DATE,
-    refreshToken: DataTypes.TEXT,
+
+    refreshToken: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+
+    status: {
+      type: DataTypes.ENUM("active", "suspended"),
+      defaultValue: "active"
+    },
 
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
-    }
+    },
+
+    loginAttempt: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
+
+    lockedUntil: DataTypes.DATE,
+
+    deletedAt: DataTypes.DATE
 
   }, {
     tableName: 'Admin',
-    timestamps: true
+    timestamps: true,
+    paranoid: true // soft delete (sesuai migration kamu)
   });
 
-  Admin.associate = function(models) {
+  Admin.associate = function (models) {
 
-    Admin.hasMany(models.Kelas, {
-      foreignKey: 'waliKelasId',
-      as: 'kelasWali'
-    });
-
-    // 🔥 FIX: disamakan dengan Pengumuman terbaru
     Admin.hasMany(models.Pengumuman, {
       foreignKey: 'createdById',
+      constraints: false,
+      scope: {
+        createdByType: 'admin'
+      },
       as: 'pengumuman'
     });
 

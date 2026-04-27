@@ -1,18 +1,14 @@
 const bcrypt = require("bcrypt")
 const db = require("../../db/models/index.js")
 
-const { Admin, Kelas, Pengumuman } = db
+const { Admin, Pengumuman } = db
 
-// GET ALL (WITH INCLUDE)
+// GET ALL
 const tampilAdmin = async () => {
   return await Admin.findAll({
     where: { role: "admin" },
     attributes: { exclude: ["password"] },
     include: [
-      {
-        model: Kelas,
-        as: "kelasWali"
-      },
       {
         model: Pengumuman,
         as: "pengumuman"
@@ -30,10 +26,6 @@ const tampilAdminById = async (id) => {
     },
     attributes: { exclude: ["password"] },
     include: [
-      {
-        model: Kelas,
-        as: "kelasWali"
-      },
       {
         model: Pengumuman,
         as: "pengumuman"

@@ -5,10 +5,9 @@ module.exports = (sequelize, DataTypes) => {
   const Jadwal = sequelize.define('Jadwal', {
 
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
-      allowNull: false
+      autoIncrement: true
     },
 
     uuid: {
@@ -57,6 +56,11 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: "regular"
     },
 
+    status: {
+      type: DataTypes.ENUM("aktif","nonaktif"),
+      defaultValue: "aktif"
+    },
+
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
@@ -82,11 +86,6 @@ module.exports = (sequelize, DataTypes) => {
     Jadwal.belongsTo(models.Mapel, {
       foreignKey: 'mapelId',
       as: 'mapel'
-    });
-
-    Jadwal.hasMany(models.Absensi, {
-      foreignKey: 'jadwalId',
-      as: 'absensi'
     });
 
   };

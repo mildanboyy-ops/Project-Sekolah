@@ -12,7 +12,6 @@ const createAbsensiValidator = [
     .withMessage("Status harus salah satu: hadir, izin, sakit, alpha")
 ]
 
-// 🔥 untuk update (biar fleksibel)
 const updateAbsensiValidator = [
   body("siswaId")
     .optional()

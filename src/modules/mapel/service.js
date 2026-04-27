@@ -1,79 +1,34 @@
 const db = require("../../db/models");
-const { Mapel, Guru, Kelas, Jadwal, Nilai, Tugas } = db;
+const { Mapel } = db;
 
-// GET ALL (WITH INCLUDE)
 const tampilMapel = async () => {
   return await Mapel.findAll({
-    include: [
-      {
-        model: Guru,
-        as: "guru"
-      },
-      {
-        model: Kelas,
-        as: "kelas"
-      },
-      {
-        model: Jadwal,
-        as: "jadwal"
-      },
-      {
-        model: Nilai,
-        as: "nilai"
-      },
-      {
-        model: Tugas,
-        as: "tugas"
-      }
-    ]
+    order: [["createdAt", "DESC"]]
   });
 };
 
-// GET BY ID (WITH INCLUDE)
 const tampilMapelById = async (id) => {
-  return await Mapel.findOne({
-    where: { id },
-    include: [
-      {
-        model: Guru,
-        as: "guru"
-      },
-      {
-        model: Kelas,
-        as: "kelas"
-      },
-      {
-        model: Jadwal,
-        as: "jadwal"
-      },
-      {
-        model: Nilai,
-        as: "nilai"
-      },
-      {
-        model: Tugas,
-        as: "tugas"
-      }
-    ]
-  });
+  return await Mapel.findOne({ where: { id } });
 };
 
-// CREATE
 const tambahMapel = async (data) => {
   return await Mapel.create(data);
 };
 
-// UPDATE
 const ubahMapel = async (id, data) => {
-  await Mapel.update(data, { where: { id } });
+  const mapel = await Mapel.findOne({ where: { id } });
+  if (!mapel) throw new Error("Mapel tidak ditemukan");
+
+  await mapel.update(data);
   return tampilMapelById(id);
 };
 
-// DELETE
 const hapusMapel = async (id) => {
-  return await Mapel.destroy({
-    where: { id }
-  });
+  const mapel = await Mapel.findOne({ where: { id } });
+  if (!mapel) throw new Error("Mapel tidak ditemukan");
+
+  await mapel.destroy();
+  return true;
 };
 
 module.exports = {
